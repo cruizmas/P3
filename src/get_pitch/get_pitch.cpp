@@ -27,6 +27,9 @@ Usage:
 Options:
     -h, --help  Show this screen
     --version   Show the version of the project
+    -m REAL, --u_maxnorm=REAL   Umbral del màximo de la autocorrelación [default: 0.4]
+    -u REAL, --u_norm=REAL   Segundo umbral autocorrelación [default: 0.3]
+    -p REAL, --u_pot1=REAL   Umbral de potencia [default: -16]
 
 Arguments:
     input-wav   Wave file with the audio signal
@@ -46,6 +49,10 @@ int main(int argc, const char *argv[]) {
 
 	std::string input_wav = args["<input-wav>"].asString();
 	std::string output_txt = args["<output-txt>"].asString();
+
+  float u_maxnorm = std::stof(args["--u_maxnorm"].asString());
+  float u_norm = std::stof(args["--u_norm"].asString());
+  float u_pot1 = std::stof(args["--u_pot1"].asString());
 
   // Read input sound file
   unsigned int rate;

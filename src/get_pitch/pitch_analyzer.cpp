@@ -12,6 +12,17 @@ namespace upc {
 
     for (unsigned int l = 0; l < r.size(); ++l) {
   		/// \TODO Compute the autocorrelation r[l]
+      //1r: inicializamos a 0
+      //2n: acumular valores
+      //3r: dividimos por la longitud
+
+      r[l] = 0;
+
+      for(unsigned int n = l; n<x.size(); n++){
+        r[l] += x[n] * x[n-l];
+      }
+      r[l] /= x.size();
+
     }
 
     if (r[0] == 0.0F) //to avoid log() and divide zero 
@@ -24,9 +35,15 @@ namespace upc {
 
     window.resize(frameLen);
 
+    
+
     switch (win_type) {
     case HAMMING:
       /// \TODO Implement the Hamming window
+      //Ventana de Hamming
+      for(unsigned int i=0; i<frameLen; i++){
+        window[i] = 0.54 - 0.46*cos(2*M_PI*i/(frameLen - 1)); //Función ventana de Hamming
+      }
       break;
     case RECT:
     default:
@@ -50,7 +67,12 @@ namespace upc {
     /// \TODO Implement a rule to decide whether the sound is voiced or not.
     /// * You can use the standard features (pot, r1norm, rmaxnorm),
     ///   or compute and use other ones.
-    return true;
+    
+    if(rmaxnorm >= u_maxnorm && r1norm >= u_norm && pot >= u_pot1){
+      return false; //sonoro
+    }
+
+    return true; //sordo
   }
 
   float PitchAnalyzer::compute_pitch(vector<float> & x) const {
@@ -76,7 +98,14 @@ namespace upc {
     ///	   .
 	/// In either case, the lag should not exceed that of the minimum value of the pitch.
 
-    unsigned int lag = iRMax - r.begin();
+  //El máximo tiene que estar situado entre el pitch mínimo y máximo, por lo tanto,
+  //begin() se usa para devolver un iterador que apunta al primer elemento del vector
+  for(iR = iRMax = r.begin() + npitch_min; iR < (r.begin() + npitch_max); iR++){
+    if (*iR > *iRMax)
+      iRMax = iR;
+  }
+
+    unsigned int lag = iRMax - r.begin(); //Diferencia entre la posición del valor más alto y la posición inicial
 
     float pot = 10 * log10(r[0]);
 
