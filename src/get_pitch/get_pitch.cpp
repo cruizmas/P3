@@ -27,9 +27,8 @@ Usage:
 Options:
     -h, --help  Show this screen
     --version   Show the version of the project
-    -m REAL, --u_maxnorm=REAL   Umbral del màximo de la autocorrelación [default: 0.4]
-    -u REAL, --u_norm=REAL   Segundo umbral autocorrelación [default: 0.3]
-    -p REAL, --u_pot1=REAL   Umbral de potencia [default: -16]
+    -a REAL, --u_maxnorm=REAL  Umbral del màximo de la autocorrelación [default: 0.4]
+    -b REAL, --u_r1norm=REAL  Umbral de autocorrelación R(1)/R(0) [default: 0.6]
 
 Arguments:
     input-wav   Wave file with the audio signal
@@ -50,9 +49,9 @@ int main(int argc, const char *argv[]) {
 	std::string input_wav = args["<input-wav>"].asString();
 	std::string output_txt = args["<output-txt>"].asString();
 
-  float u_maxnorm = std::stof(args["--u_maxnorm"].asString());
-  float u_norm = std::stof(args["--u_norm"].asString());
-  float u_pot1 = std::stof(args["--u_pot1"].asString());
+  float u_maxnorm = stof(args["--u_maxnorm"].asString());
+  float u_r1norm = stof(args["--u_r1norm"].asString());
+  //float u_pot1 = stof(args["--u_pot1"].asString());
 
   // Read input sound file
   unsigned int rate;
@@ -71,7 +70,7 @@ int main(int argc, const char *argv[]) {
   /// \TODO
   /// Preprocess the input signal in order to ease pitch estimation. For instance,
   /// central-clipping or low pass filtering may be used.
-  
+
   // Iterate for each frame and save values in f0 vector
   vector<float>::iterator iX;
   vector<float> f0;

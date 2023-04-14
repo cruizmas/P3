@@ -67,17 +67,33 @@ namespace upc {
     /// \TODO Implement a rule to decide whether the sound is voiced or not.
     /// * You can use the standard features (pot, r1norm, rmaxnorm),
     ///   or compute and use other ones.
-    
-    if(rmaxnorm >= u_maxnorm && r1norm >= u_norm && pot >= u_pot1){
-      return false; //sonoro
-    }
 
-    return true; //sordo
+    float u_maxnorm = 0.4;
+    float u_r1norm = 0.6;
+    
+    if(rmaxnorm >= u_maxnorm || r1norm >= u_r1norm)
+      return false; //sonoro
+    else
+      return true;
   }
 
-  float PitchAnalyzer::compute_pitch(vector<float> & x) const {
+  float PitchAnalyzer::compute_pitch(vector<float> & x) const { 
+    //Compute pitch calcula la autocorrelación
     if (x.size() != frameLen)
       return -1.0F;
+
+    //Frame center-clipping
+    float max = *std::max_element(x.begin(), x.end());
+    for(int i = 0; i < (int)x.size(); i++) {
+      if(abs(x[i]) < cclip) {
+        x[i] = 0.0F;
+      }
+    }
+
+    //Frame normalization
+    max = *std::max_element(x.begin(), x.end());
+    for (int i = 0; i < (int)x.size(); i++)
+      x[i] /= max;
 
     //Window input frame
     for (unsigned int i=0; i<x.size(); ++i)
@@ -88,7 +104,7 @@ namespace upc {
     //Compute correlation
     autocorrelation(x, r);
 
-    vector<float>::const_iterator iR = r.begin(), iRMax = iR;
+    vector<float>::const_iterator iR = r.begin(), iRMax = iR + npitch_min;
 
     /// \TODO 
 	/// Find the lag of the maximum value of the autocorrelation away from the origin.<br>
@@ -100,7 +116,7 @@ namespace upc {
 
   //El máximo tiene que estar situado entre el pitch mínimo y máximo, por lo tanto,
   //begin() se usa para devolver un iterador que apunta al primer elemento del vector
-  for(iR = iRMax = r.begin() + npitch_min; iR < (r.begin() + npitch_max); iR++){
+  for(iR = iRMax = (r.begin() + npitch_min); iR < (r.begin() + npitch_max); iR++){
     if (*iR > *iRMax)
       iRMax = iR;
   }
