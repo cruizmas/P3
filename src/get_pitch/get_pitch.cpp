@@ -29,7 +29,7 @@ Options:
     --version   Show the version of the project
     -a REAL, --u_maxnorm=REAL  Umbral del màximo de la autocorrelación [default: 0.4]
     -b REAL, --u_r1norm=REAL  Umbral de autocorrelación R(1)/R(0) [default: 0.6]
-
+    
 Arguments:
     input-wav   Wave file with the audio signal
     output-txt  Output file: ASCII file with the result of the estimation:
@@ -51,7 +51,7 @@ int main(int argc, const char *argv[]) {
 
   float u_maxnorm = stof(args["--u_maxnorm"].asString());
   float u_r1norm = stof(args["--u_r1norm"].asString());
-  //float u_pot1 = stof(args["--u_pot1"].asString());
+  //float u_pot = stof(args["--u_pot"].asString());
 
   // Read input sound file
   unsigned int rate;
