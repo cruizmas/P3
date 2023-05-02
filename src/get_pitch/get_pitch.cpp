@@ -27,9 +27,11 @@ Usage:
 Options:
     -h, --help  Show this screen
     --version   Show the version of the project
-    -a REAL, --u_maxnorm=REAL  Umbral del màximo de la autocorrelación [default: 0.4]
-    -b REAL, --u_r1norm=REAL  Umbral de autocorrelación R(1)/R(0) [default: 0.6]
-    
+    -m FLOAT, --u_maxnorm=FLOAT  Umbral del màximo de la autocorrelación [default: 0.4]
+    -r FLOAT, --u_r1norm=FLOAT  Umbral de autocorrelación R(1)/R(0) [default: 0.6]
+    -c FLOAT, --cclip=FLOAT  Umbral center clipping 1 [default: 0.008]
+    -p FLOAT, --u_pot=FLOAT  Power threshold [default: -55]
+
 Arguments:
     input-wav   Wave file with the audio signal
     output-txt  Output file: ASCII file with the result of the estimation:
@@ -41,6 +43,14 @@ int main(int argc, const char *argv[]) {
 	/// \TODO 
 	///  Modify the program syntax and the call to **docopt()** in order to
 	///  add options and arguments to the program.
+
+  /// \FET
+  /// The following parameters have been included:
+  /// - umaxnorm
+  /// - r1norm
+  /// - center clipping 
+  /// - power threshold
+
     std::map<std::string, docopt::value> args = docopt::docopt(USAGE,
         {argv + 1, argv + argc},	// array of arguments, without the program name
         true,    // show help if requested
@@ -51,7 +61,8 @@ int main(int argc, const char *argv[]) {
 
   float u_maxnorm = stof(args["--u_maxnorm"].asString());
   float u_r1norm = stof(args["--u_r1norm"].asString());
-  //float u_pot = stof(args["--u_pot"].asString());
+  float cclip = stof(args["--cclip"].asString());
+  float u_pot = stof(args["--u_pot"].asString());
 
   // Read input sound file
   unsigned int rate;
@@ -61,15 +72,24 @@ int main(int argc, const char *argv[]) {
     return -2;
   }
 
-  int n_len = rate * FRAME_LEN;
-  int n_shift = rate * FRAME_SHIFT;
+  unsigned int n_len = rate * FRAME_LEN;
+  unsigned int n_shift = rate * FRAME_SHIFT;
 
   // Define analyzer
-  PitchAnalyzer analyzer(n_len, rate, PitchAnalyzer::RECT, 50, 500);
+  PitchAnalyzer analyzer(n_len, rate, u_maxnorm, u_r1norm, u_pot, cclip, PitchAnalyzer::RECT, 50, 500);
 
   /// \TODO
   /// Preprocess the input signal in order to ease pitch estimation. For instance,
   /// central-clipping or low pass filtering may be used.
+
+  /// \FET
+  /// A center clipping filter without offset has been applied
+  float max = *std::max_element(x.begin(), x.end());
+  for(int i=0; i<(int)x.size(); i++){
+    if(abs(x[i]) < cclip*max){
+      x[i] = 0.0F;
+    }
+  }
 
   // Iterate for each frame and save values in f0 vector
   vector<float>::iterator iX;
@@ -82,6 +102,17 @@ int main(int argc, const char *argv[]) {
   /// \TODO
   /// Postprocess the estimation in order to supress errors. For instance, a median filter
   /// or time-warping may be used.
+  vector<float> f0_final(f0.size());
+  vector<float> temp(3);
+  int i;
+  for(i = 1; i < (int)(f0.size() - 1); i++) {
+    temp = {f0[i-1], f0[i], f0[i+1]};
+    auto m = temp.begin() + temp.size()/2;
+    std::nth_element(temp.begin(), m, temp.end());
+    f0_final[i] = temp[temp.size()/2];
+  }
+  f0_final[i] = f0_final[i-1];
+  f0_final[0] = f0_final[1];
 
   // Write f0 contour into the output file
   ofstream os(output_txt);
