@@ -14,6 +14,16 @@ Ejercicios básicos
   `get_pitch`.
 
    * Complete el cálculo de la autocorrelación e inserte a continuación el código correspondiente.
+     ```c++
+     for(unsigned int n = l; n<x.size(); n++){
+        r[l] += x[n] * x[n-l];
+      }
+      r[l] /= x.size();
+     }
+
+     if (r[0] == 0.0F)  
+      r[0] = 1e-10; 
+     ```
 
    * Inserte una gŕafica donde, en un *subplot*, se vea con claridad la señal temporal de un segmento de
      unos 30 ms de un fonema sonoro y su periodo de pitch; y, en otro *subplot*, se vea con claridad la
@@ -24,10 +34,24 @@ Ejercicios básicos
 
    * Determine el mejor candidato para el periodo de pitch localizando el primer máximo secundario de la
      autocorrelación. Inserte a continuación el código correspondiente.
+     
+     ```c++
+     for(iR = iRMax = (r.begin() + npitch_min); iR < (r.begin() + npitch_max); iR++){
+      if (*iR > *iRMax){
+       iRMax = iR;
+      }
+     }
+     ```
 
    * Implemente la regla de decisión sonoro o sordo e inserte el código correspondiente.
-
-   * Puede serle útil seguir las instrucciones contenidas en el documento adjunto `código.pdf`.
+   > Hemos seguido 3 pasos:
+   > 1. Autocorrelación
+   > 2. Relación R(1)/R(0)
+   > 3. Valor de la potencia
+   ```c++
+   if(rmaxnorm>this->u_maxnorm && r1norm > this->u_r1norm && pot > this->u_pot1) return false; //Autocorrelación en el candidato a pitch.
+    return true;
+    ```
 
 - Una vez completados los puntos anteriores, dispondrá de una primera versión del estimador de pitch. El 
   resto del trabajo consiste, básicamente, en obtener las mejores prestaciones posibles con él.
