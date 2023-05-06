@@ -12,7 +12,7 @@ namespace upc {
 
     for (unsigned int l = 0; l < r.size(); ++l) {
   		/// \TODO Compute the autocorrelation r[l]
-      /// \FET
+      /// \DONE
       /// 1. inicializamos a 0
       /// 2. acumular valores
       /// 3. dividimos por la longitud
@@ -80,7 +80,7 @@ namespace upc {
     /// * You can use the standard features (pot, r1norm, rmaxnorm),
     ///   or compute and use other ones.
     
-    if(rmaxnorm>this->u_maxnorm && r1norm > this->u_r1norm && pot > this->u_pot1) return true; //Autocorrelación en el candidato a pitch.
+    if(rmaxnorm>this->u_maxnorm && r1norm > this->u_r1norm && pot > this->u_pot1) return false; //Autocorrelación en el candidato a pitch.
     return true; //Considera que todas las tramas son sordas.
 
     /** 

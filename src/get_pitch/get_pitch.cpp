@@ -44,7 +44,7 @@ int main(int argc, const char *argv[]) {
 	///  Modify the program syntax and the call to **docopt()** in order to
 	///  add options and arguments to the program.
 
-  /// \FET
+  /// \DONE
   /// The following parameters have been included:
   /// - umaxnorm
   /// - r1norm
@@ -82,7 +82,7 @@ int main(int argc, const char *argv[]) {
   /// Preprocess the input signal in order to ease pitch estimation. For instance,
   /// central-clipping or low pass filtering may be used.
 
-  /// \FET
+  /// \DONE
   /// A center clipping filter without offset has been applied
   float max = *std::max_element(x.begin(), x.end());
   for(int i=0; i<(int)x.size(); i++){
