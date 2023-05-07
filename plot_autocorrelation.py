@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import soundfile as sf
 
 data, samplerate = sf.read("./fonema.wav")
+data = data.flatten()  # aplanar los datos
 t = np.arange(0, len(data))/samplerate
 
 corr = np.correlate(data, data, 'full') / len(data)
@@ -15,7 +16,7 @@ fig, axs = plt.subplots(2)
 
 axs[0].plot(t, data)
 axs[1].plot(t, corr)
-axs[1].plot((min_index+max_index)*1000/samplerate, max_value, 'ro', label='Temporal index = {}ms'.format((min_index+max_index)*1000/samplerate)) #MOSTRAR EL MÁXIMO DE LA AUTOCORRELACIÓN
+#axs[1].plot((min_index+max_index)*1000/samplerate,max_value,'ro', label='Temporal index = {}ms'.format((min_index+max_index)*1000/samplerate)) #MOSTRAR EL MÁXIMO DE LA AUTOCORRELACIÓN
 
 axs[0].set_title('Voiced frame')
 axs[1].set_title('Voiced frame autocorrelation')
