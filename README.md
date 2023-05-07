@@ -71,6 +71,8 @@ Ejercicios básicos
 		autocorrelación en su máximo secundario (rmaxnorm = r[lag] / r[0]).
 
 		Puede considerar, también, la conveniencia de usar la tasa de cruces por cero.
+		
+		![WhatsApp Image 2023-05-07 at 12 58 19](https://user-images.githubusercontent.com/125216138/236673500-33c2ad79-3d09-4539-84d3-a3fb8d84ab17.jpeg)
 
 	    Recuerde configurar los paneles de datos para que el desplazamiento de ventana sea el adecuado, que
 		en esta práctica es de 15 ms.
