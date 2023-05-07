@@ -33,8 +33,9 @@ Ejercicios básicos
 	 
 	 >El gráfico lo hemos obtenido mediante el siguiente script de python: [plot2.py](./fitxers/plot2.py)
 	 
+	 <img width="1296" alt="autocorrelacion" src="https://user-images.githubusercontent.com/125216138/236695216-b7c497bc-8b89-4040-8ecd-998dc52331ac.png">
+
 	 
-	 ![WhatsApp Image 2023-05-07 at 17 58 30](https://user-images.githubusercontent.com/125216138/236689621-b527c47e-9295-4ef7-a0c7-0948fae4edeb.jpeg)
 
 	 NOTA: es más que probable que tenga que usar Python, Octave/MATLAB u otro programa semejante para
 	 hacerlo. Se valorará la utilización de la biblioteca matplotlib de Python.
