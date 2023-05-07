@@ -31,6 +31,9 @@ Ejercicios básicos
      unos 30 ms de un fonema sonoro y su periodo de pitch; y, en otro *subplot*, se vea con claridad la
 	 autocorrelación de la señal y la posición del primer máximo secundario.
 	 
+	 >El gráfico lo hemos obtenido mediante el siguiente script de python: [plot2.py](./fitxers/plot2.py)
+	 
+	 
 	 ![WhatsApp Image 2023-05-07 at 17 58 30](https://user-images.githubusercontent.com/125216138/236689621-b527c47e-9295-4ef7-a0c7-0948fae4edeb.jpeg)
 
 	 NOTA: es más que probable que tenga que usar Python, Octave/MATLAB u otro programa semejante para
@@ -84,6 +87,8 @@ Ejercicios básicos
      
 		Aunque puede usar el propio Wavesurfer para obtener la representación, se valorará
 	 	el uso de alternativas de mayor calidad (particularmente Python).
+		
+		>El gráfico lo hemos obtenido mediante el siguiente script de python: [plot.py](./fitxers/plot.py)
 		
 		![WhatsApp Image 2023-05-07 at 12 58 19](https://user-images.githubusercontent.com/125216138/236673500-33c2ad79-3d09-4539-84d3-a3fb8d84ab17.jpeg)
 		
