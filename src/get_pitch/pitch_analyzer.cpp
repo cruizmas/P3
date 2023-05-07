@@ -42,11 +42,10 @@ namespace upc {
     case HAMMING:
       /// \TODO Implement the Hamming window
         for(unsigned int i=0; i<frameLen; i++){
-          window[i] = 0.53836 - 0.46164*cos(2*M_PI*i/(frameLen - 1)); // https://es.wikipedia.org/wiki/Ventana_(funci%C3%B3n)#Hamming
+          window[i] = 0.53836 - 0.46164*cos(2*M_PI*i/(frameLen - 1)); 
         }
       /** 
        * \DONE Hamming window implemented
-       * - We have used the formula given by https://es.wikipedia.org/wiki/Ventana_(funci%C3%B3n)#Hamming
       */
       break;
     case RECT:
@@ -77,7 +76,10 @@ namespace upc {
 
     /** 
      * \DONE Criteria for differencing between voiced/unvoiced established
-     * It has been considered the autocorrelation at long term, the relation R(1)/R(0) and the power.
+     * Considerations:
+     * - Autocorrelation
+     * - R(1)/R(0) 
+     * - Power
     */
   }
 
@@ -118,9 +120,8 @@ namespace upc {
     ///	   .
 	/// In either case, the lag should not exceed that of the minimum value of the pitch.
 
-    for(iR = iRMax =  r.begin() + npitch_min; iR < r.begin() + npitch_max; iR++){ // The maximum has to be located between the minimum and maximum pitch, so it is a reasonable value.
-      // begin() is used to return an iterator pointing to the first element of the vector container
-      if(*iR > * iRMax) iRMax = iR; //Localizamos el máximo --> Se actualiza iRMax si el valor concreto que se está estudiando en ese momento es mayor.
+    for(iR = iRMax =  r.begin() + npitch_min; iR < r.begin() + npitch_max; iR++){ 
+      if(*iR > * iRMax) iRMax = iR; 
     }
     unsigned int lag = iRMax - r.begin(); // Cálculo del desplazamiento del pico
 
@@ -136,14 +137,32 @@ namespace upc {
     //You can print these (and other) features, look at them using wavesurfer
     //Based on that, implement a rule for unvoiced
     //change to #if 1 and compile
-#if 0 //Este if 0 sirve para ver la forma de la autocorrelación. Si ponemos if 1 veremos los valores en pantalla
+#if 1 
     if (r[0] > 0.0F)
       cout << pot << '\t' << r[1]/r[0] << '\t' << r[lag]/r[0] << endl;
 #endif
-    
-    if (unvoiced(pot, r[1]/r[0], r[lag]/r[0]))
+
+    if (unvoiced(pot, r[1]/r[0], r[lag]/r[0])){
       return 0; // 0 indica trama sorda
-    else
-      return (float) samplingFreq/(float) lag; // Si es sonora, se devuelve la frecuencia de pitch del máximo de la autocorrelaación en Hz
+    }
+    else{
+      //Extracción valores señal y autocorrelación
+        FILE *file_voz_x = fopen("fitxers/res_x.txt", "w+");
+        FILE *file_voz_r = fopen("fitxers/res_r.txt", "w+");
+
+        for (unsigned int i = 0; i < x.size(); i++){
+          fprintf(file_voz_x, "%f \n", x[i]);
+          fprintf(file_voz_r, "%f \n", r[i]);
+        }
+
+        fclose(file_voz_x);
+      
+     
+     
+        fclose(file_voz_r);
+    }
+    
+      
+      return (float) samplingFreq/(float) lag; // Si es sonora devuelve la frecuencia de pitch del máximo de la autocorrelaación en Hz
+    }
   }
-}

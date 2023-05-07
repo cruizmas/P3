@@ -47,14 +47,12 @@ int main(int argc, const char *argv[]) {
   /// - umaxnorm
   /// - r1norm
   /// - center clipping 1 (cclip1)
-  /// - center clipping 2 (cclip2)
   /// - power threshold (powthr)
   
     std::map<std::string, docopt::value> args = docopt::docopt(USAGE,
         {argv + 1, argv + argc},	// array of arguments, without the program name
         true,    // show help if requested
         "2.0");  // version string
-        //El docopt devuelve un mapa.
 
 	std::string input_wav = args["<input-wav>"].asString();
 	std::string output_txt = args["<output-txt>"].asString();
@@ -89,7 +87,7 @@ int main(int argc, const char *argv[]) {
     } 
   }
   /// \DONE
-  /// A center clipping filter has been computed.
+  /// A center clipping filter has been computed which sets to zero the values under the threshold
 
   // Iterate for each frame and save values in f0 vector
   vector<float>::iterator iX;
@@ -114,7 +112,7 @@ int main(int argc, const char *argv[]) {
   f0_final[i] = f0_final[i-1];
   f0_final[0] = f0_final[1];
   /// \DONE
-  /// Non-recursive Median filter computed
+  /// Non-recursive Median filter has been computed
 
   // Write f0 contour into the output file
   ofstream os(output_txt);
