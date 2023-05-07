@@ -1,6 +1,7 @@
 /// @file
 
 #include <iostream>
+#include <fstream>
 #include <math.h>
 #include "pitch_analyzer.h"
 
@@ -12,15 +13,17 @@ namespace upc {
 
     for (unsigned int l = 0; l < r.size(); ++l) {
   		/// \TODO Compute the autocorrelation r[l]
-      /// \DONE
-      /// 1. inicializamos a 0
-      /// 2. acumular valores
-      /// 3. dividimos por la longitud
+
+      /** 
+       * \DONE Autocorrelation computated.
+       * - Autocorrelation set to 0.
+       * - Autocorrelation acumulated for all the signal.
+       * - Autocorrelation divided by length.
+      */
 
       r[l] = 0;
-
-      for(unsigned int n = l; n<x.size(); n++){
-        r[l] += x[n] * x[n-l];
+      for (unsigned int n = l; n < x.size(); n++){
+        r[l] += x[n]*x[n-l];
       }
       r[l] /= x.size();
     }
@@ -35,16 +38,15 @@ namespace upc {
 
     window.resize(frameLen);
 
-    
-
     switch (win_type) {
     case HAMMING:
       /// \TODO Implement the Hamming window
-      for(unsigned int i=0; i<frameLen; i++){
-        window[i] = 0.54 - 0.46*cos(2*M_PI*i/(frameLen - 1)); //Función ventana de Hamming
-      }
+        for(unsigned int i=0; i<frameLen; i++){
+          window[i] = 0.53836 - 0.46164*cos(2*M_PI*i/(frameLen - 1)); // https://es.wikipedia.org/wiki/Ventana_(funci%C3%B3n)#Hamming
+        }
       /** 
        * \DONE Hamming window implemented
+       * - We have used the formula given by https://es.wikipedia.org/wiki/Ventana_(funci%C3%B3n)#Hamming
       */
       break;
     case RECT:
@@ -69,18 +71,8 @@ namespace upc {
     /// \TODO Implement a rule to decide whether the sound is voiced or not.
     /// * You can use the standard features (pot, r1norm, rmaxnorm),
     ///   or compute and use other ones.
-
-    /* if(rmaxnorm > this->u_maxnorm || r1norm > this->u_r1norm)
-      return false; //sonoro
-    else
-      return true; //sordo
-*/
-   
-       /// \TODO Implement a rule to decide whether the sound is voiced or not.
-    /// * You can use the standard features (pot, r1norm, rmaxnorm),
-    ///   or compute and use other ones.
     
-    if(rmaxnorm>this->u_maxnorm && r1norm > this->u_r1norm && pot > this->u_pot1) return false; //Autocorrelación en el candidato a pitch.
+    if(rmaxnorm>umaxnorm && r1norm > r1thr && pot > powthr) return false; //Autocorrelación en el candidato a pitch.
     return true; //Considera que todas las tramas son sordas.
 
     /** 
@@ -89,7 +81,7 @@ namespace upc {
     */
   }
 
-  float PitchAnalyzer::compute_pitch(vector<float> & x) const { 
+  float PitchAnalyzer::compute_pitch(vector<float> & x) const {
     //Compute pitch calcula la autocorrelación
     if (x.size() != frameLen)
       return -1.0F;
@@ -116,7 +108,7 @@ namespace upc {
     //Compute correlation
     autocorrelation(x, r);
 
-    vector<float>::const_iterator iR = r.begin(), iRMax = iR + npitch_min;
+    vector<float>::const_iterator iR = r.begin(), iRMax = iR;
 
     /// \TODO 
 	/// Find the lag of the maximum value of the autocorrelation away from the origin.<br>
@@ -126,29 +118,32 @@ namespace upc {
     ///	   .
 	/// In either case, the lag should not exceed that of the minimum value of the pitch.
 
-  //El máximo tiene que estar situado entre el pitch mínimo y máximo, por lo tanto,
-  //begin() se usa para devolver un iterador que apunta al primer elemento del vector
-  for(iR = iRMax = (r.begin() + npitch_min); iR < (r.begin() + npitch_max); iR++){
-    if (*iR > *iRMax){
-      iRMax = iR;
+    for(iR = iRMax =  r.begin() + npitch_min; iR < r.begin() + npitch_max; iR++){ // The maximum has to be located between the minimum and maximum pitch, so it is a reasonable value.
+      // begin() is used to return an iterator pointing to the first element of the vector container
+      if(*iR > * iRMax) iRMax = iR; //Localizamos el máximo --> Se actualiza iRMax si el valor concreto que se está estudiando en ese momento es mayor.
     }
-  }
+    unsigned int lag = iRMax - r.begin(); // Cálculo del desplazamiento del pico
 
-    unsigned int lag = iRMax - r.begin(); //Diferencia entre la posición del valor más alto y la posición inicial
+    /** 
+      * \DONE Lag of the maximum value computed
+      * - Iteration through the autocorrelation's vector.
+      * - Selection of the highest value while iterating.
+      * - Difference between the highest value's position and the initial position.
+    */
 
-    float pot = 10 * log10(r[0]);
+    float pot = 10 * log10(r[0]); 
 
     //You can print these (and other) features, look at them using wavesurfer
     //Based on that, implement a rule for unvoiced
     //change to #if 1 and compile
-#if 1
+#if 0 //Este if 0 sirve para ver la forma de la autocorrelación. Si ponemos if 1 veremos los valores en pantalla
     if (r[0] > 0.0F)
       cout << pot << '\t' << r[1]/r[0] << '\t' << r[lag]/r[0] << endl;
 #endif
     
     if (unvoiced(pot, r[1]/r[0], r[lag]/r[0]))
-      return 0;
+      return 0; // 0 indica trama sorda
     else
-      return (float) samplingFreq/(float) lag;
+      return (float) samplingFreq/(float) lag; // Si es sonora, se devuelve la frecuencia de pitch del máximo de la autocorrelaación en Hz
   }
 }

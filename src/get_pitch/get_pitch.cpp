@@ -18,20 +18,18 @@ using namespace upc;
 
 static const char USAGE[] = R"(
 get_pitch - Pitch Estimator 
-
 Usage:
     get_pitch [options] <input-wav> <output-txt>
     get_pitch (-h | --help)
     get_pitch --version
-
 Options:
+    -m FLOAT, --umaxnorm = FLOAT  Long-term autocorrelation threshold [default: 0.4]
+    -r FLOAT, --r1norm = FLOAT  R(1)/R(0) autocorrelation threshold [default: 0.6]
+    -1 FLOAT, --cclip1 FLOAT  Whole signal Center-clipping threshold [default: 0.025]
+    -2 FLOAT, --cclip2 FLOAT  Frame Center-clipping threshold [default: 0.008]
+    -p FLOAT, --powthr FLOAT  Power threshold [default: -55]
     -h, --help  Show this screen
     --version   Show the version of the project
-    -m FLOAT, --u_maxnorm=FLOAT  Umbral del màximo de la autocorrelación [default: 0.4]
-    -r FLOAT, --u_r1norm=FLOAT  Umbral de autocorrelación R(1)/R(0) [default: 0.6]
-    -c FLOAT, --cclip=FLOAT  Umbral center clipping 1 [default: 0.008]
-    -p FLOAT, --u_pot=FLOAT  Power threshold [default: -55]
-
 Arguments:
     input-wav   Wave file with the audio signal
     output-txt  Output file: ASCII file with the result of the estimation:
@@ -48,21 +46,23 @@ int main(int argc, const char *argv[]) {
   /// The following parameters have been included:
   /// - umaxnorm
   /// - r1norm
-  /// - center clipping 
-  /// - power threshold
-
+  /// - center clipping 1 (cclip1)
+  /// - center clipping 2 (cclip2)
+  /// - power threshold (powthr)
+  
     std::map<std::string, docopt::value> args = docopt::docopt(USAGE,
         {argv + 1, argv + argc},	// array of arguments, without the program name
         true,    // show help if requested
         "2.0");  // version string
+        //El docopt devuelve un mapa.
 
 	std::string input_wav = args["<input-wav>"].asString();
 	std::string output_txt = args["<output-txt>"].asString();
-
-  float u_maxnorm = stof(args["--u_maxnorm"].asString());
-  float u_r1norm = stof(args["--u_r1norm"].asString());
-  float cclip = stof(args["--cclip"].asString());
-  float u_pot = stof(args["--u_pot"].asString());
+  float umaxnorm = stof(args["--umaxnorm"].asString()); // Siempre accedemos con la key larga.
+  float r1norm = stof(args["--r1norm"].asString());
+  float cclip1 = stof(args["--cclip1"].asString());
+  float cclip2 = stof(args["--cclip2"].asString());
+  float powthr = stof(args["--powthr"].asString());
 
   // Read input sound file
   unsigned int rate;
@@ -72,24 +72,24 @@ int main(int argc, const char *argv[]) {
     return -2;
   }
 
-  unsigned int n_len = rate * FRAME_LEN;
-  unsigned int n_shift = rate * FRAME_SHIFT;
+  int n_len = rate * FRAME_LEN;
+  int n_shift = rate * FRAME_SHIFT;
 
   // Define analyzer
-  PitchAnalyzer analyzer(n_len, rate, u_maxnorm, u_r1norm, u_pot, cclip, PitchAnalyzer::RECT, 50, 500);
+  PitchAnalyzer analyzer(n_len, rate, umaxnorm, r1norm, powthr, cclip2, PitchAnalyzer::RECT, 50, 500);
 
   /// \TODO
   /// Preprocess the input signal in order to ease pitch estimation. For instance,
   /// central-clipping or low pass filtering may be used.
-
-  /// \DONE
-  /// A center clipping filter without offset has been applied
+  
   float max = *std::max_element(x.begin(), x.end());
-  for(int i=0; i<(int)x.size(); i++){
-    if(abs(x[i]) < cclip*max){
+  for(int i = 0; i < (int)x.size(); i++) {
+    if(abs(x[i]) < cclip1*max) {
       x[i] = 0.0F;
-    }
+    } 
   }
+  /// \DONE
+  /// A center clipping filter has been computed.
 
   // Iterate for each frame and save values in f0 vector
   vector<float>::iterator iX;
@@ -113,6 +113,8 @@ int main(int argc, const char *argv[]) {
   }
   f0_final[i] = f0_final[i-1];
   f0_final[0] = f0_final[1];
+  /// \DONE
+  /// Non-recursive Median filter computed
 
   // Write f0 contour into the output file
   ofstream os(output_txt);
@@ -122,7 +124,7 @@ int main(int argc, const char *argv[]) {
   }
 
   os << 0 << '\n'; //pitch at t=0
-  for (iX = f0.begin(); iX != f0.end(); ++iX) 
+  for (iX = f0_final.begin(); iX != f0_final.end(); ++iX) 
     os << *iX << '\n';
   os << 0 << '\n';//pitch at t=Dur
 
