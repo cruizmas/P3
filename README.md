@@ -28,6 +28,8 @@ Ejercicios básicos
    * Inserte una gŕafica donde, en un *subplot*, se vea con claridad la señal temporal de un segmento de
      unos 30 ms de un fonema sonoro y su periodo de pitch; y, en otro *subplot*, se vea con claridad la
 	 autocorrelación de la señal y la posición del primer máximo secundario.
+	 
+	 ![Figure_1](https://user-images.githubusercontent.com/125216138/236651203-7a0044ce-d2ea-4ecd-98e2-2eb459a3ab70.png)
 
 	 NOTA: es más que probable que tenga que usar Python, Octave/MATLAB u otro programa semejante para
 	 hacerlo. Se valorará la utilización de la biblioteca matplotlib de Python.
@@ -36,6 +38,7 @@ Ejercicios básicos
      autocorrelación. Inserte a continuación el código correspondiente.
      
      ```c++
+     vector<float>::const_iterator iR = r.begin(), iRMax = iR + npitch_min;
      for(iR = iRMax = (r.begin() + npitch_min); iR < (r.begin() + npitch_max); iR++){
       if (*iR > *iRMax){
        iRMax = iR;
@@ -49,8 +52,11 @@ Ejercicios básicos
    > 2. Relación R(1)/R(0)
    > 3. Valor de la potencia
    ```c++
-   if(rmaxnorm>this->u_maxnorm && r1norm > this->u_r1norm && pot > this->u_pot1) return false; //Autocorrelación en el candidato a pitch.
-    return true;
+   if(rmaxnorm>this->u_maxnorm && r1norm > this->u_r1norm && pot > this->u_pot1) {
+   return false; 
+   } else {
+   return true;
+   }
     ```
 
 - Una vez completados los puntos anteriores, dispondrá de una primera versión del estimador de pitch. El 
@@ -79,6 +85,9 @@ Ejercicios básicos
   * Optimice los parámetros de su sistema de estimación de pitch e inserte una tabla con las tasas de error
     y el *score* TOTAL proporcionados por `pitch_evaluate` en la evaluación de la base de datos 
 	`pitch_db/train`..
+	
+    <img width="379" alt="Captura de Pantalla 2023-05-07 a las 2 11 19" src="https://user-images.githubusercontent.com/125216138/236651335-11042de4-046a-4df0-9b58-cfa5628dd6ee.png">
+
 
 Ejercicios de ampliación
 ------------------------
